@@ -4,13 +4,18 @@
     <meta charset="utf-8">
     <title>Memorize Tool</title>
     <style>
+html, body {
+  margin:0;
+  padding:0;
+}
 h1 {
   display: inline-block;
   margin: 10px;
 }
 p {
-  font-size: 30px;
+  font-size: 16px;
   font-weight: bold;
+  font-family: "verdana";
 }
 textarea {
   width: 100%;
@@ -38,8 +43,11 @@ button {
   border: none;
   cursor: pointer;
 }
-.dropbtn {
-
+button:disabled,
+button[disabled]{
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
 }
 .dropdown {
   position: relative;
@@ -68,52 +76,117 @@ button {
 .dropdown:hover .dropbtn {
   background-color: #628ac9;
 }
+#inputContainer {
+  margin: 10px;
+}
+#outputContainer {
+  margin: 10px;
+}
+#startButton {
+  margin-top: 6px;
+}
   </style>
   <script type="text/javascript">
     var onOption = 1;
+    var isInputMode = true;
+    var isScrambled = false;
+    var scrambledText = "";
+    var memorizeThis = "";
+    var percentage = 80;
     function pageLoaded() {
+      setInterval(function () {
+        if (isInputMode) {
 
+        } else {
+          if (!isScrambled && memorizeThis !== "") {
+            var oldWords = memorizeThis.split(/\W+/);
+            var newWords = []
+            for (var i = 0; i < oldWords.length; i ++) {
+              var w = oldWords[i];
+              if (Math.random() > percentage/100) {
+                newWords.push("-".repeat(w.length))
+              } else {
+                newWords.push(w)
+              }
+            }
+            scrambledText = newWords.join(" ");
+            isScrambled = true;
+          }
+          document.getElementById("output").innerHTML = scrambledText;
+          document.getElementById("outputPercentage").innerHTML = percentage+"%";
+        }
+      }, 20);
     }
-
     function showOption1() {
       hideAllOptions();
       onOption = 1;
+      document.getElementById("startButton").disabled = document.getElementById("customText").value===""
       document.getElementById("option1").style.display = "block";
     }
     function showOption2() {
       hideAllOptions();
       onOption = 2;
+      document.getElementById("startButton").disabled = false;
       document.getElementById("option2").style.display = "block";
     }
     function showOption3() {
       hideAllOptions();
       onOption = 3;
+      document.getElementById("startButton").disabled = true;
       document.getElementById("option3").style.display = "block";
     }
     function hideAllOptions() {
+      isInputMode = true;
+      document.getElementById("inputContainer").style.display = "block";
+      document.getElementById("outputContainer").style.display = "none";
       document.getElementById("option1").style.display = "none";
       document.getElementById("option2").style.display = "none";
       document.getElementById("option3").style.display = "none";
     }
+    function checkForDisabledStartButton() {
+      if(document.getElementById("customText").value==="") {
+        document.getElementById('startButton').disabled = true;
+      } else {
+        document.getElementById('startButton').disabled = false;
+      }
+    }
     function myCallback(dataWeGotViaJsonp){
-      document.getElementById("verseGoesHere").innerHTML = dataWeGotViaJsonp.text;
+      memorizeThis = dataWeGotViaJsonp.text;
     }
     function beginMemorizing() {
-      if (onOption === 2) {
-        var verseText = document.getElementById("verseText").value;
+      if (onOption === 1) {
+        memorizeThis = document.getElementById("customText").value;
+      } else if (onOption === 2) {
+        var verseText = document.getElementById("verseText").value || "john 14:6";
         var s = document.createElement('script');
         s.type = 'text/javascript';
-        console.log(verseText);
         s.src = 'https://bible-api.com/'+verseText+'?callback=myCallback';
         //s.src = 'https://bible-api.com/john%203:16?callback=myCallback';
         document.body.appendChild(s);
       }
+
+      document.getElementById("inputContainer").style.display = "none";
+      document.getElementById("outputContainer").style.display = "block";
+      isInputMode = false;
+    }
+    function increasePercentage() {
+      percentage += 10;
+      isScrambled = false;
+    }
+    function decreasePercentage() {
+      percentage -= 10;
+      isScrambled = false;
+    }
+    function updatePercentage() {
+      isScrambled = false;
     }
   </script>
 
   </head>
   <body onLoad="pageLoaded();">
     <h1>Memorize Tool</h1>
+
+
     <div id="dropdown1" class="dropdown">
       <button class="dropbtn">Options</button>
 
@@ -123,17 +196,26 @@ button {
         <a onclick="showOption3();">Stuff</a>
       </div>
     </div>
-    <form id='option1'>
-      <textarea placeholder="Input custom text..."></textarea>
-    </form>
-    <form id='option2' style="display:none">
-      <input placeholder="e.g. John 14:6" id="verseText"></input>
-    </form>
-    <form id='option3' style="display:none">
-      <input placeholder="stuff"></textarea>
-    </form>
+    <div id="inputContainer">
+      <form id='option1'>
+        <textarea placeholder="Input custom text..." id="customText" onkeyup="checkForDisabledStartButton()"></textarea>
+      </form>
+      <form id='option2' style="display:none">
+        <input placeholder="e.g. John 14:6" id="verseText"></input>
+      </form>
+      <form id='option3' style="display:none">
+        <input placeholder="stuff"></textarea>
+      </form>
+      <button id="startButton" onclick="beginMemorizing();" disabled>Start</button>
+    </div>
 
-    <button onclick="beginMemorizing();">Start</button>
-    <p id="verseGoesHere">Yay</p>
+    <div id="outputContainer" style="display:none">
+      <p id="outputPercentage">...</p>
+      <p id="output">...</p>
+      <button id="increasePercentageButton" onclick="increasePercentage()">Easier</button>
+      <button id="decreasePercentageButton" onclick="decreasePercentage()">Harder</button>
+      <button id="updatePercentageButton" onclick="updatePercentage()">Scramble</button>
+    </div>
+
   </body>
 </html>
