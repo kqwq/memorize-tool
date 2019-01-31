@@ -1,7 +1,4 @@
 <!DOCTYPE html>
-<?php
-header('Access-Control-Allow-Origin: *');
-?>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
@@ -10,6 +7,10 @@ header('Access-Control-Allow-Origin: *');
 h1 {
   display: inline-block;
   margin: 10px;
+}
+p {
+  font-size: 30px;
+  font-weight: bold;
 }
 textarea {
   width: 100%;
@@ -94,16 +95,22 @@ button {
       document.getElementById("option2").style.display = "none";
       document.getElementById("option3").style.display = "none";
     }
+    function myCallback(dataWeGotViaJsonp){
+      document.getElementById("verseGoesHere").innerHTML = dataWeGotViaJsonp.text;
+    }
     function beginMemorizing() {
       if (onOption === 2) {
-        fetch("https://bible-api.com/john 3:16?translation=kjv").then(function(response) {
-          return response.text()
-        }).then(function(text) {
-          p.innerHTML = text;
-        });
+        var verseText = document.getElementById("verseText").value;
+        var s = document.createElement('script');
+        s.type = 'text/javascript';
+        console.log(verseText);
+        s.src = 'https://bible-api.com/'+verseText+'?callback=myCallback';
+        //s.src = 'https://bible-api.com/john%203:16?callback=myCallback';
+        document.body.appendChild(s);
       }
     }
   </script>
+
   </head>
   <body onLoad="pageLoaded();">
     <h1>Memorize Tool</h1>
@@ -120,13 +127,13 @@ button {
       <textarea placeholder="Input custom text..."></textarea>
     </form>
     <form id='option2' style="display:none">
-      <input placeholder="e.g. John 14:6"></textarea>
+      <input placeholder="e.g. John 14:6" id="verseText"></input>
     </form>
     <form id='option3' style="display:none">
       <input placeholder="stuff"></textarea>
     </form>
 
     <button onclick="beginMemorizing();">Start</button>
-    <p>Yay</p>
+    <p id="verseGoesHere">Yay</p>
   </body>
 </html>
