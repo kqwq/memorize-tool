@@ -100,13 +100,26 @@ button[disabled]{
         } else {
           if (!isScrambled && memorizeThis !== "") {
             var oldWords = memorizeThis.split(/\W+/);
+            for (var i = oldWords.length-1; i >= 0; i --) {// Remove empty items
+              if (oldWords[i] === '') {
+                oldWords.splice(i, 1);
+              }
+            }
             var newWords = []
+            var isVisibles = [];
+            for (var i = 0; i < oldWords.length; i ++) {
+              isVisibles.push(i);
+            }
+            for (var i = 0; i < oldWords.length*percentage/100; i ++) {
+              var removeIndex = Math.floor(Math.random()*isVisibles.length);
+              isVisibles.splice(removeIndex, 1);
+            }
             for (var i = 0; i < oldWords.length; i ++) {
               var w = oldWords[i];
-              if (Math.random() > percentage/100) {
-                newWords.push("-".repeat(w.length))
+              if (isVisibles.indexOf(i) !== -1) {
+                newWords.push("-".repeat(w.length));
               } else {
-                newWords.push(w)
+                newWords.push(w);
               }
             }
             scrambledText = newWords.join(" ");
@@ -170,11 +183,11 @@ button[disabled]{
       isInputMode = false;
     }
     function increasePercentage() {
-      percentage += 10;
+      percentage = (percentage >= 100) ? 100 : percentage + 10;
       isScrambled = false;
     }
     function decreasePercentage() {
-      percentage -= 10;
+      percentage = (percentage <= 0) ? 0 : percentage - 10;
       isScrambled = false;
     }
     function updatePercentage() {
