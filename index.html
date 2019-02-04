@@ -76,6 +76,40 @@ button[disabled]{
 .dropdown:hover .dropbtn {
   background-color: #628ac9;
 }
+.slidecontainer {
+  width: 100%;
+}
+.slider {
+  -webkit-appearance: none;
+  width: 70%;
+  height: 15px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  margin: 10px;
+}
+.slider:hover {
+  opacity: 1;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4060f0;/*#CAF50;*/
+  cursor: pointer;
+}
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #4CAF50;
+  cursor: pointer;
+}
 #inputContainer {
   margin: 10px;
 }
@@ -99,14 +133,14 @@ button[disabled]{
 
         } else {
           if (!isScrambled && memorizeThis !== "") {
-            var oldWords = memorizeThis.split(/\W+/);
+            var oldWords = memorizeThis.split(" ");
             for (var i = oldWords.length-1; i >= 0; i --) {// Remove empty items
               if (oldWords[i] === '') {
                 oldWords.splice(i, 1);
               }
             }
             var newWords = []
-            var isVisibles = [];
+            var isVisibles = [];// [0, 1, 2, 3, 4, 5, ... ]
             for (var i = 0; i < oldWords.length; i ++) {
               isVisibles.push(i);
             }
@@ -129,6 +163,14 @@ button[disabled]{
           document.getElementById("outputPercentage").innerHTML = percentage+"%";
         }
       }, 20);
+
+
+      // Slider code
+      var slider = document.getElementById("myRange");
+      slider.oninput = function() {
+        percentage = this.value*10;
+        updatePercentage();
+      }
     }
     function showOption1() {
       hideAllOptions();
@@ -152,6 +194,7 @@ button[disabled]{
       isInputMode = true;
       document.getElementById("inputContainer").style.display = "block";
       document.getElementById("outputContainer").style.display = "none";
+      document.getElementById("mySliderThing").style.display = "none";
       document.getElementById("option1").style.display = "none";
       document.getElementById("option2").style.display = "none";
       document.getElementById("option3").style.display = "none";
@@ -180,6 +223,7 @@ button[disabled]{
 
       document.getElementById("inputContainer").style.display = "none";
       document.getElementById("outputContainer").style.display = "block";
+      document.getElementById("mySliderThing").style.display = "block";
       isInputMode = false;
     }
     function increasePercentage() {
@@ -198,7 +242,6 @@ button[disabled]{
   </head>
   <body onLoad="pageLoaded();">
     <h1>Memorize Tool</h1>
-
 
     <div id="dropdown1" class="dropdown">
       <button class="dropbtn">Options</button>
@@ -229,6 +272,11 @@ button[disabled]{
       <button id="decreasePercentageButton" onclick="decreasePercentage()">Harder</button>
       <button id="updatePercentageButton" onclick="updatePercentage()">Scramble</button>
     </div>
+    <div class="slidecontainer" style="display:none" id="mySliderThing">
+      <input type="range" min="0" max="10" value="8" class="slider" id="myRange">
+
+    </div>
+
 
   </body>
 </html>
